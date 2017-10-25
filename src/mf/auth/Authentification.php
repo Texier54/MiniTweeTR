@@ -33,7 +33,8 @@ abstract class Authentification extends AbstractAuthentification {
 
     public function logout() {
 
-    	session_destroy();
+    	unset($_SESSION['user_login']);
+    	unset($_SESSION['access_level']);
 
     	$this->user_login= NULL;
 		$this->access_level = 'ACCESS_LEVEL_NONE';

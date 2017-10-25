@@ -14,7 +14,7 @@ abstract class AbstractView {
     
     /* Constructeur 
      * 
-     * - RecupÃ©rer le répertoire racine de l'application et le nom du
+     * - Recupérer le répertoire racine de l'application et le nom du
      *   script principal depuis une instance de HttpRequest. Ces
      *   donnÃ©es serviront pour construire les URL des liens et des
      *   actions des formulaires. 

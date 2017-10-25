@@ -42,10 +42,16 @@ class TweeterController extends \mf\control\AbstractController {
     
     public function viewHome(){
 
+        if(isset($this->request->get['page']))
+            $decal = $this->request->get['page'];
+        else
+            $decal = 0;
+
         $ctrl=[];
         $requete = \tweeterapp\model\Tweet::select();  // SQL : select * from 'ville'
         $lignes = $requete  ->orderByDESC('created_at', 'DESC')
                             ->limit(5)
+                            ->skip($decal*5)
                             ->get();   // exécution de la requête et plusieurs lignesrésultat
 
         foreach ($lignes as $v)       // $v est une instance de la classe Ville
@@ -113,7 +119,7 @@ class TweeterController extends \mf\control\AbstractController {
 
                 foreach ($liste as $v)
                 {
-                   $tab = [$v->text, $v->created_at, $d[0]['fullname']];
+                   $tab = [$v->text, $v->created_at, $d[0]['username'], $v->id];
                    $ctrl[] = $tab;
                 }
 
@@ -197,7 +203,7 @@ class TweeterController extends \mf\control\AbstractController {
         $user = $requete->first();
 
         $tweet = new \tweeterapp\model\Tweet();
-        $tweet->text = $this->request->post['send'];
+        $tweet->text = htmlspecialchars(addslashes($this->request->post['text']));
         $tweet->author= $user->id;
         $tweet->save();
         $this->viewHome();
@@ -234,7 +240,68 @@ class TweeterController extends \mf\control\AbstractController {
         $v->follower = $userreq->id;
         $v->followee = $this->request->get['id'];
         $v->save();
+
+        $requete = \tweeterapp\model\User::where('id', '=', $this->request->get['id']);
+        $user = $requete->first(); 
+
+        $user->follow = $tweet->follow+1;
+        $user->save();
+
         $this->following();
+    }
+
+    public function like(){
+
+        $user = new \tweeterapp\auth\TweeterAuthentification();
+
+        $requete = \tweeterapp\model\User::where('username', '=', $user->user_login);
+        $userreq = $requete->first();
+
+        $iflike = $userreq->likeIDo()->where('tweet_id', '=', $this->request->get['id'])->first();
+
+        if($iflike==null)
+        {
+
+            $like = new \tweeterapp\model\Like();
+
+            $like->user_id = $userreq->id;
+            $like->tweet_id = $this->request->get['id'];
+            $like->save();
+
+            $requete = \tweeterapp\model\Tweet::where('id', '=', $this->request->get['id']);
+            $tweet = $requete->first(); 
+
+            $tweet->score = $tweet->score+1;
+            $tweet->save();
+
+        }
+
+        $this->viewTweet();
+    }
+
+    public function dislike(){
+
+        $user = new \tweeterapp\auth\TweeterAuthentification();
+
+        $requete = \tweeterapp\model\User::where('username', '=', $user->user_login);
+        $userreq = $requete->first();
+
+        $iflike = \tweeterapp\model\Like::where('tweet_id' ,'=', $this->request->get['id'])->where('user_id', '=', $userreq->id)->first();
+
+        if($iflike!=null)
+        {
+
+            $iflike->delete();
+
+            $requete = \tweeterapp\model\Tweet::where('id', '=', $this->request->get['id']);
+            $tweet = $requete->first(); 
+
+            $tweet->score = $tweet->score-1;
+            $tweet->save();
+
+        }
+
+        $this->viewTweet();
     }
 
 }

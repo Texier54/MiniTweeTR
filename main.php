@@ -42,6 +42,8 @@
 	$router->addRoute('post',    '/post/',         '\tweeterapp\control\TweeterController', 'post', \tweeterapp\auth\TweeterAuthentification::ACCESS_LEVEL_USER);
 	$router->addRoute('send',    '/send/',         '\tweeterapp\control\TweeterController', 'send', \tweeterapp\auth\TweeterAuthentification::ACCESS_LEVEL_USER);
 	$router->addRoute('follow',    '/follow/',         '\tweeterapp\control\TweeterController', 'follow', \tweeterapp\auth\TweeterAuthentification::ACCESS_LEVEL_USER);
+	$router->addRoute('like',    '/like/',         '\tweeterapp\control\TweeterController', 'like', \tweeterapp\auth\TweeterAuthentification::ACCESS_LEVEL_USER);
+	$router->addRoute('dislike',    '/dislike/',         '\tweeterapp\control\TweeterController', 'dislike', \tweeterapp\auth\TweeterAuthentification::ACCESS_LEVEL_USER);
 
 
 	$router->addRoute('default', 'DEFAULT_ROUTE',  '\tweeterapp\control\TweeterController', 'viewHome');

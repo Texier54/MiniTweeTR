@@ -1,8 +1,6 @@
 <?php
 	namespace mf\utils;
 
-	require_once("AbstractHttpRequest.php");
-
 	class HttpRequest extends AbstractHttpRequest
 	{
 

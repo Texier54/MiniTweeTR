@@ -68,6 +68,33 @@ EOT;
         return $retour;
     }
 
+    private function renderNavBas(){
+
+        $retour = '';
+
+        $req = new \mf\utils\HttpRequest();
+        if(isset($req->get['page']))
+            $page = $req->get['page'];
+        else
+            $page = 0;
+
+        $prev = $page-1;
+        $next = $page+1;
+
+        $racine =  $this->app_root;
+
+        if($page == 0)
+        $retour = <<<EOT
+        <div class="pager"><div id="page-prev"></div><a id="page-next" href="${racine}/main.php/home/?page=${next}">Next</a>
+EOT;
+        else
+        $retour = <<<EOT
+        <div class="pager"><a id="page-prev" href="${racine}/main.php/home/?page=${prev}">Prev</a><a id="page-next" href="${racine}/main.php/home/?page=${next}">Next</a>
+EOT;
+
+        return $retour;
+    }
+
     /* MÃ©thode renderHome
      *
      * Retourne le fragment HTML qui rÃ©alise la fonctionalitÃ© afficher
@@ -90,15 +117,15 @@ EOT;
                     </div>
             </div>';
         }
-        return '<h2>Latest Tweets</h2>'.$retour;
+        return '<h2>Latest Tweets</h2>'.$retour.$this->renderNavBas();
 
 
     }
     
-    /* MÃ©thode renderUeserTweets
+    /* Méthode renderUeserTweets
      *
-     * Retourne le fragment HTML qui rÃ©alise la fonctionalitÃ© afficher
-     * tout les Tweets d'un utilisateur donnÃ©. 
+     * Retourne le fragment HTML qui réalise la fonctionalité afficher
+     * tout les Tweets d'un utilisateur donné. 
      *  
      * L'attribut $this->data contient un objet User.
      * 
@@ -110,42 +137,61 @@ EOT;
         foreach ($this->data as $value) {
            $retour = $retour.'  
             <div class="tweet">
-                <a class="tweet-text" href="">'.$value[0].'</a>
+                <a class="tweet-text" href="'.$this->app_root.'/main.php/view/?id='.$value[3].'">'.$value[0].'</a>
                     <div class="tweet-footer">
                         <span class="tweet-timestamp">'.$value[1].'</span>
-                        <span class="tweet-author"><a href="${racine}/main.php/view/?id=">'.$value[2].'</a></span>
+                        <span class="tweet-author"><a href="'.$this->app_root.'/main.php/view/?id=">'.$value[2].'</a></span>
                     </div>
             </div>';
         }
-        return '<h2>Texier</h2>'.$retour;
+            
+            $v = \tweeterapp\model\Tweet::where('id', '=', $value[3])->first();
+
+            $author = $v->user()->first()['username'];
+
+        return '<h2>'.$author.'</h2>'.$retour;
 
 
     }
 
     private function renderViewTweet(){
 
+            $id = $this->data[0]['id'];
             $id_author = $this->data[0]['author'];
             $text = $this->data[0]['text'];
             $date = $this->data[0]['created_at'];
             $like = $this->data[0]['score'];
             $racine =  $this->app_root;
 
+            $v = \tweeterapp\model\Tweet::where('id', '=', $id)->first();
+
+            $author = $v->user()->first()['username'];
+
             $retour = <<<EOT
             <div class="tweet">
                 <a  class="tweet-text" href="">${text}</a>
                     <div class="tweet-footer">
                         <span class="tweet-timestamp">${date}</span>
-                        <span class="tweet-author"><a href="">Texier</a></span>
+                        <span class="tweet-author"><a href="${racine}/main.php/user/?id=${id_author}">${author}</a></span>
                     </div>
                     <div class="tweet-footer">
                         <hr>
                         <span class="tweet-score tweet-control">${like}</span>
-                        <a class="tweet-control" href="${racine}/main.php/like/?id=79"><img alt="Like" src=${racine}/html/like.png></a>
-                        <a class="tweet-control" href="${racine}/main.php/dislike/?id=79"><img alt="dislike" src=${racine}/html/dislike.png></a>
+
+EOT;
+            $user = new \tweeterapp\auth\TweeterAuthentification();
+
+            if($author!=$user->user_login) 
+                $retour .=<<<EOT
+                        <a class="tweet-control" href="${racine}/main.php/like/?id=${id}"><img alt="Like" src=${racine}/html/like.png></a>
+                        <a class="tweet-control" href="${racine}/main.php/dislike/?id=${id}"><img alt="dislike" src=${racine}/html/dislike.png></a>
                         <a class="tweet-control" href="${racine}/main.php/follow/?id=${id_author}"><img alt="Follow" src=${racine}/html/follow.png></a>
+
+EOT;
+
+    $retour .=<<<EOT
                     </div>
             </div>
-
 EOT;
 
         return $retour;
