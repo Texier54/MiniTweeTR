@@ -41,7 +41,7 @@ Configuration du fichier conf/config.ini
 
 ## Fait avec
 
-* [Eloquent](https://laravel.com/docs/5.0/eloquent) - Framework PhP
+* [Eloquent](https://laravel.com/docs/5.0/eloquent) - ORM
 * [MicroFramework](https://github.com/Texier54/MicroFramework) - Framework PhP
 
 ## Autheurs
